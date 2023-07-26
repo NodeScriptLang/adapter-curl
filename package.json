@@ -1,0 +1,53 @@
+{
+    "name": "@nodescript/adapter-curl",
+    "version": "2.0.2",
+    "description": "Adapter for sending cURL requests",
+    "type": "module",
+    "sideEffects": false,
+    "private": true,
+    "scripts": {
+        "clean": "run-p clean:*",
+        "clean:self": "rm -rf out *.tsbuildinfo",
+        "dev": "npm run compile && run-p dev:*",
+        "dev:ts": "tsc -b -w",
+        "dev:http": "NODE_ENV=development node ./out/bin/http.js",
+        "compile": "npm run clean && tsc -b",
+        "lint": "eslint --ext=.js,.ts,.vue --cache .",
+        "test": "NODE_NO_WARNINGS=1 NODE_ENV=test mocha",
+        "build": "run-s compile",
+        "version": "run-s version:*",
+        "version:compile": "npm run compile",
+        "postversion": "git push --tags origin main"
+    },
+    "pre-commit": [
+        "lint"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/NodeScriptLang/adapter-curl.git"
+    },
+    "keywords": [],
+    "author": "Boris Okunskiy",
+    "license": "ISC",
+    "dependencies": {
+        "@nodescript/errors": "^1.1.2",
+        "@nodescript/http-server": "^1.4.3",
+        "@nodescript/logger": "^1.4.2",
+        "@nodescript/metrics": "^1.1.1",
+        "@nodescript/microservice": "^1.2.1",
+        "@nodescript/protocomm": "^0.7.0",
+        "airtight": "^5.7.0",
+        "dotenv": "^16.0.3",
+        "mesh-config": "^1.0.0",
+        "mesh-ioc": "^3.2.0",
+        "undici": "^5.22.1"
+    },
+    "devDependencies": {
+        "@nodescript/eslint-config": "^1.0.4",
+        "@types/node": "^20.4.4",
+        "eslint": "^8.34.0",
+        "npm-run-all": "^4.1.5",
+        "pre-commit": "^1.2.2",
+        "typescript": "^4.9.5"
+    }
+}
