@@ -1,8 +1,6 @@
-# Fetch Adapter
+# Curl Adapter
 
-Powers "Http Request" node functionality.
-
-Allows sending HTTP requests indirectly, bypasing browsers' SameOrigin policies and eliminating associated issues.
+Allows sending HTTP requests via cURL, bypasing browsers' SameOrigin policies and eliminating associated issues.
 
 ## Development
 
