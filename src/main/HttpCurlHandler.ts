@@ -36,13 +36,17 @@ export class HttpCurlHandler extends HttpRouter {
                 ctx.request.pipe(child.stdin);
                 ctx.request.once('end', () => child.stdin.end());
             }
+            if (request.options.buffer) {
+                const stdout = await this.readStream(child.stdout);
+                ctx.responseBody = stdout;
+            } else {
+                ctx.responseBody = child.stdout;
+            }
             const info = await this.readStderr(child.stderr);
             const duration = Date.now() - startedAt;
             ctx.status = 200;
             ctx.addResponseHeader('x-curl-status', String(info.response_code));
             ctx.addResponseHeader('x-curl-headers', JSON.stringify(info.headers));
-            // ctx.responseBody = await this.readStream(child.stdout);
-            ctx.responseBody = child.stdout;
             this.metrics.requestLatency.addMillis(duration, {
                 status: info.response_code,
                 method: request.method,
@@ -75,6 +79,7 @@ export class HttpCurlHandler extends HttpRouter {
             url: ctx.getRequestHeader('x-curl-url'),
             headers: parseJson(ctx.getRequestHeader('x-curl-headers'), {}),
             args: parseJson(ctx.getRequestHeader('x-curl-args'), []),
+            options: parseJson(ctx.getRequestHeader('x-curl-options'), {}),
         });
     }
 

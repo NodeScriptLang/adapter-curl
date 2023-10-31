@@ -8,6 +8,7 @@ export interface CurlRequestSpec {
     method: CurlMethod;
     headers: CurlHeaders;
     args: string[];
+    options: Record<string, any>;
 }
 
 export const CurlRequestSpecSchema = new Schema<CurlRequestSpec>({
@@ -19,6 +20,13 @@ export const CurlRequestSpecSchema = new Schema<CurlRequestSpec>({
         args: {
             type: 'array',
             items: { type: 'string' },
+        },
+        options: {
+            type: 'object',
+            properties: {},
+            additionalProperties: {
+                type: 'any'
+            },
         },
     },
 });
