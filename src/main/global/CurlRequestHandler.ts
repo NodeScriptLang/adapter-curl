@@ -4,24 +4,21 @@ import { spawn } from 'child_process';
 import { config } from 'mesh-config';
 import { dep } from 'mesh-ioc';
 
-import { CurlHeaders } from '../schema/CurlHeaders.js';
-import { CurlMethod } from '../schema/CurlMethod.js';
-import { CurlRequestSpec, CurlRequestSpecSchema } from '../schema/CurlRequestSpec.js';
-import { Metrics } from './Metrics.js';
-import { parseJson } from './util.js';
+import { CurlHeaders } from '../../schema/CurlHeaders.js';
+import { CurlMethod } from '../../schema/CurlMethod.js';
+import { CurlRequestSpec, CurlRequestSpecSchema } from '../../schema/CurlRequestSpec.js';
+import { Metrics } from '../Metrics.js';
+import { parseJson } from '../util.js';
 
-export class HttpCurlHandler extends HttpRouter {
+export class CurlRequestHandler extends HttpRouter {
 
     @config({ default: 'curl' }) CURL_PATH!: string;
-
-    @config({ default: '' })
-    CURL_PREFIX!: string;
 
     @dep() private logger!: Logger;
     @dep() private metrics!: Metrics;
 
     routes: HttpRoute[] = [
-        ['POST', `${this.CURL_PREFIX}/request`, ctx => this.handleRequest(ctx)],
+        ['POST', `/request`, ctx => this.handleRequest(ctx)],
     ];
 
     async handleRequest(ctx: HttpContext) {
