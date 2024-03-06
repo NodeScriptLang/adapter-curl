@@ -10,7 +10,7 @@ import { CurlRequestSpec, CurlRequestSpecSchema } from '../../schema/CurlRequest
 import { Metrics } from '../Metrics.js';
 import { parseJson } from '../util.js';
 
-export class CurlRequestHandler extends HttpRouter {
+export class CurlHandler extends HttpRouter {
 
     @config({ default: 'curl' }) CURL_PATH!: string;
 

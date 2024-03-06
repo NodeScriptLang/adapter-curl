@@ -1,14 +1,14 @@
-import { HttpChain, HttpCorsHandler, HttpHandler, HttpMetricsHandler, StandardHttpHandler } from '@nodescript/http-server';
+import { HttpChain, HttpContext, HttpCorsHandler, HttpHandler, HttpMetricsHandler, HttpNext, HttpServer, StandardHttpHandler } from '@nodescript/http-server';
 import { dep } from 'mesh-ioc';
 
-import { CurlRequestHandler } from './CurlRequestHandler.js';
+import { CurlHandler } from './CurlHandler.js';
 
-export class CurlHttpHandler extends HttpChain {
+export class MainHttpServer extends HttpServer {
 
     @dep() private standardHttpHandler!: StandardHttpHandler;
     @dep() private corsHandler!: HttpCorsHandler;
     @dep() private metricsHandler!: HttpMetricsHandler;
-    @dep() private curlRequestHandler!: CurlRequestHandler;
+    @dep() private curlRequestHandler!: CurlHandler;
 
     private corsConfigHandler: HttpHandler = {
         async handle(ctx, next) {
@@ -18,12 +18,16 @@ export class CurlHttpHandler extends HttpChain {
         },
     };
 
-    handlers: HttpHandler[] = [
+    handler = new HttpChain([
         this.standardHttpHandler,
         this.corsConfigHandler,
         this.corsHandler,
         this.metricsHandler,
         this.curlRequestHandler,
-    ];
+    ]);
+
+    async handle(ctx: HttpContext, next: HttpNext) {
+        await this.handler.handle(ctx, next);
+    }
 
 }
