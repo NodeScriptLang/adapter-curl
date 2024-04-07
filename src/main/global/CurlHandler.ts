@@ -1,5 +1,6 @@
 import { HttpContext, HttpRoute, HttpRouter } from '@nodescript/http-server';
 import { Logger } from '@nodescript/logger';
+import { CounterMetric, HistogramMetric, metric } from '@nodescript/metrics';
 import { spawn } from 'child_process';
 import { config } from 'mesh-config';
 import { dep } from 'mesh-ioc';
@@ -7,7 +8,6 @@ import { dep } from 'mesh-ioc';
 import { CurlHeaders } from '../../schema/CurlHeaders.js';
 import { CurlMethod } from '../../schema/CurlMethod.js';
 import { CurlRequestSpec, CurlRequestSpecSchema } from '../../schema/CurlRequestSpec.js';
-import { Metrics } from '../Metrics.js';
 import { parseJson } from '../util.js';
 
 export class CurlHandler extends HttpRouter {
@@ -15,7 +15,20 @@ export class CurlHandler extends HttpRouter {
     @config({ default: 'curl' }) CURL_PATH!: string;
 
     @dep() private logger!: Logger;
-    @dep() private metrics!: Metrics;
+
+    @metric()
+    private requestLatency = new HistogramMetric<{
+        status: number;
+        method: string;
+        hostname: string;
+        error?: string;
+    }>('nodescript_curl_service_request_latency', 'NodeScript cURL Service request latency');
+
+    @metric()
+    private errors = new CounterMetric<{
+        error: string;
+        code: string;
+    }>('nodescript_curl_service_errors_total', 'NodeScript cURL Service errors');
 
     routes: HttpRoute[] = [
         ['POST', `/request`, ctx => this.handleRequest(ctx)],
@@ -44,23 +57,22 @@ export class CurlHandler extends HttpRouter {
             ctx.status = 200;
             ctx.addResponseHeader('x-curl-status', String(info.response_code));
             ctx.addResponseHeader('x-curl-headers', JSON.stringify(info.headers));
-            this.metrics.requestLatency.addMillis(duration, {
-                status: info.response_code,
-                method: request.method,
-                hostname: this.tryParseHostname(request.url),
-            });
             this.logger.info('Request served', {
                 url: request.url,
                 status: info.response_code,
                 duration,
             });
-            this.metrics.requestLatency.addMillis(Date.now() - ctx.startedAt, {
+            this.requestLatency.addMillis(Date.now() - ctx.startedAt, {
                 status: info.response_code,
                 method: request.method,
                 hostname: this.tryParseHostname(request.url),
             });
         } catch (error: any) {
             error.stack = '';
+            this.errors.incr(1, {
+                error: error.name,
+                code: error.code,
+            });
             this.logger.warn('Request failed', {
                 error,
                 method: request.method,
