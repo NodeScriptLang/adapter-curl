@@ -35,7 +35,6 @@ jobs:
         with:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}:${{ env.TAG }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}:latest
           file: Dockerfile
-          context: .
           push: true
           build-args: |
             VERSION=${{ env.TAG }}
