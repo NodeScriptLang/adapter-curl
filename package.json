@@ -1,6 +1,6 @@
 {
     "name": "@nodescript/adapter-curl",
-    "version": "1.6.3",
+    "version": "1.6.4",
     "description": "Adapter for sending cURL requests",
     "type": "module",
     "sideEffects": false,
