@@ -46,24 +46,22 @@ export class CurlHandler extends HttpRouter {
                 ctx.request.pipe(child.stdin);
                 ctx.request.once('end', () => child.stdin.end());
             }
-            if (request.options.buffer) {
-                const stdout = await this.readStream(child.stdout);
-                ctx.responseBody = stdout;
-            } else {
-                ctx.responseBody = child.stdout;
-            }
-            const info = await this.readStderr(child.stderr);
+            const [stdout, stderr] = await Promise.all([
+                this.readStream(child.stdout),
+                this.readStderr(child.stderr),
+            ]);
+            ctx.responseBody = stdout;
             const duration = Date.now() - startedAt;
             ctx.status = 200;
-            ctx.addResponseHeader('x-curl-status', String(info.response_code));
-            ctx.addResponseHeader('x-curl-headers', JSON.stringify(info.headers));
+            ctx.addResponseHeader('x-curl-status', String(stderr.response_code));
+            ctx.addResponseHeader('x-curl-headers', JSON.stringify(stderr.headers));
             this.logger.info('Request served', {
                 url: request.url,
-                status: info.response_code,
+                status: stderr.response_code,
                 duration,
             });
             this.requestLatency.addMillis(Date.now() - ctx.startedAt, {
-                status: info.response_code,
+                status: stderr.response_code,
                 method: request.method,
                 hostname: this.tryParseHostname(request.url),
             });
