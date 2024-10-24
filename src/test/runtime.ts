@@ -8,6 +8,7 @@ config({ path: '.env' });
 config({ path: '.env.test' });
 
 export class TestRuntime {
+
     app = new App();
 
     @dep({ cache: false }) testHttpServer!: TestHttpServer;

@@ -152,7 +152,7 @@ export class CurlHandler extends HttpRouter {
         try {
             const { hostname } = new URL(url);
             return hostname;
-        } catch (error) {
+        } catch (_err) {
             return '<invalid url>';
         }
     }
@@ -160,6 +160,7 @@ export class CurlHandler extends HttpRouter {
 }
 
 export class CurlError extends Error {
+
     override name = this.constructor.name;
     status = 500;
     details = {};
@@ -171,10 +172,11 @@ export class CurlError extends Error {
         };
         this.stack = '';
     }
+
 }
 
 interface CurlResponseInfo {
-    headers: CurlHeaders;
+    'headers': CurlHeaders;
     'url_effective': string;
     'response_code': number;
 }
