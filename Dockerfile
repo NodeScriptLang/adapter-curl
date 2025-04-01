@@ -13,8 +13,8 @@ ENV NODE_ENV production
 
 RUN apt-get update && apt-get install -y wget xz-utils
 RUN wget "https://github.com/lexiforest/curl-impersonate/releases/download/v0.9.5/curl-impersonate-v0.9.5.x86_64-linux-gnu.tar.gz" -qO - | tar -xzf -
-RUN mv ./curl_safari18_0_ios /usr/local/bin/curl && chmod +x /usr/local/bin/curl
-ENV CURL_PATH /usr/local/bin/curl
+RUN chmod +x /curl_safari18_0_ios
+ENV CURL_PATH /curl_safari18_0_ios
 
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
