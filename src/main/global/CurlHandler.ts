@@ -4,6 +4,7 @@ import { CounterMetric, HistogramMetric, metric } from '@nodescript/metrics';
 import { spawn } from 'child_process';
 import { config } from 'mesh-config';
 import { dep } from 'mesh-ioc';
+import path from 'path';
 
 import { CurlHeaders } from '../../schema/CurlHeaders.js';
 import { CurlMethod } from '../../schema/CurlMethod.js';
@@ -12,7 +13,7 @@ import { parseJson } from '../util.js';
 
 export class CurlHandler extends HttpRouter {
 
-    @config({ default: 'curl' }) CURL_PATH!: string;
+    @config({ default: 'curl' }) CURL_DEFAULT_PATH!: string;
 
     @dep() private logger!: Logger;
 
@@ -39,7 +40,10 @@ export class CurlHandler extends HttpRouter {
         const request = this.parseRequestSpec(ctx);
         try {
             const args = this.prepareArgs(request);
-            const child = spawn(this.CURL_PATH, args, {
+            const curlPath = request.options.curlBinary ?
+                path.join(path.dirname(this.CURL_DEFAULT_PATH), request.options.curlBinary) :
+                this.CURL_DEFAULT_PATH;
+            const child = spawn(curlPath, args, {
                 stdio: 'pipe',
             });
             if (this.supportsBody(request.method)) {
